@@ -47,5 +47,10 @@ src/
 
 ## Deploy
 
-The build is fully static (`dist/`). Import the repo on Vercel or Netlify and it works with
-the default settings (build command `npm run build`, output `dist`).
+Every push to `main` is built and published to GitHub Pages by
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml):
+<https://dakshhhhh-ops.github.io/portfolio-website/>
+
+One-time setup: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+
+The build is fully static (`dist/`), so Vercel or Netlify also work with the default settings.
