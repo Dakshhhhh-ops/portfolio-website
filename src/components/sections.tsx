@@ -1,12 +1,13 @@
 import { Fragment, useRef, useState } from 'react'
 import { motion, useScroll, useTransform, type MotionValue } from 'motion/react'
 import { useMotionPref } from '../context/MotionContext'
-import { closeUps, nav, projects, services, site } from '../data/content'
+import { highlights, nav, projects, roles, site, toolkit } from '../data/content'
 import { useClock, useDragScroll, useFitText } from '../hooks'
 import { EASE_OUT, Magnetic, Reveal } from './ui'
 import { Visual } from './Visual'
 
 const pad = (n: number) => String(n).padStart(2, '0')
+const external = { target: '_blank', rel: 'noopener noreferrer' }
 
 /* ---------- Hero ---------- */
 
@@ -16,17 +17,17 @@ export function Hero() {
   return (
     <section className="hero" id="top">
       <div className="hero__top label">
-        <span>(Portfolio — {new Date().getFullYear()})</span>
+        <span>
+          ({site.fullName} — {new Date().getFullYear()})
+        </span>
         <span className="hero__role">{site.role}</span>
-        {site.available && (
-          <span className="status">
-            <i />
-            Available for work
-          </span>
-        )}
+        <span className="status">
+          <i />
+          {site.status}
+        </span>
       </div>
 
-      <h1 className="hero__name" ref={nameRef} aria-label={site.name}>
+      <h1 className="hero__name" ref={nameRef} aria-label={`${site.fullName}, ${site.role}`}>
         <span className="hero__name-inner" aria-hidden="true">
           {[...site.name].map((letter, i) => (
             <motion.span
@@ -46,7 +47,7 @@ export function Hero() {
           {site.intro.text} <em>{site.intro.highlight}</em>
         </Reveal>
         <Reveal className="hero__side" delay={0.62}>
-          <ul className="tags" aria-label="Capabilities">
+          <ul className="tags" aria-label="Focus areas">
             {site.tags.map((tag) => (
               <li key={tag}>{tag}</li>
             ))}
@@ -88,7 +89,6 @@ export function Marquee() {
 
 export function Work() {
   const { motionOn, toggle } = useMotionPref()
-  const years = projects.map((p) => Number(p.year))
 
   return (
     <section className="section" id="work">
@@ -97,9 +97,6 @@ export function Work() {
           Selected work <sup>({pad(projects.length)})</sup>
         </Reveal>
         <Reveal className="section__aside label">
-          <span>
-            {Math.min(...years)} — {Math.max(...years)}
-          </span>
           <button className="textbtn" type="button" aria-pressed={!motionOn} onClick={toggle}>
             ({motionOn ? 'Pause' : 'Play'} motion)
           </button>
@@ -107,42 +104,87 @@ export function Work() {
       </header>
 
       <div className="works">
-        {projects.map((project, i) => (
-          <Reveal
-            as="a"
-            className="work"
-            key={project.title}
-            href={project.href}
-            data-cursor="View"
-            delay={i % 2 ? 0.12 : 0}
-          >
-            <Visual
-              colors={project.colors}
-              mock={project.mock}
-              word={project.title}
-              flip={i >= 2}
-              image={project.image}
-              parallax
-            />
-            <div className="work__meta label">
-              <span>
-                ({pad(i + 1)} / {pad(projects.length)})
-              </span>
-              <span>{project.year}</span>
-              <span>{project.kind}</span>
-            </div>
-            <h3 className="work__title">{project.title}</h3>
-            <p className="work__desc">{project.description}</p>
-          </Reveal>
-        ))}
+        {projects.map((project, i) => {
+          const featured = i === 0
+          // After the full-width featured card, every second card sits lower for a staggered grid
+          const dropped = !featured && i % 2 === 0
+          const primary = project.links[0]
+          return (
+            <Reveal
+              as="article"
+              className={`work${featured ? ' work--feature' : ''}${dropped ? ' work--drop' : ''}`}
+              key={project.title}
+              delay={dropped ? 0.12 : 0}
+            >
+              <a
+                className="work__media"
+                href={primary.href}
+                {...external}
+                data-cursor={primary.label === 'Live demo' ? 'Open' : 'Code'}
+                aria-label={`${project.title} — ${primary.label}`}
+              >
+                <Visual
+                  colors={project.colors}
+                  mock={project.mock}
+                  word={project.word ?? project.title}
+                  flip={i % 2 === 1}
+                  image={project.image}
+                  parallax
+                />
+              </a>
+
+              <div className="work__info">
+                <div className="work__head">
+                  <div className="work__meta label">
+                    <span>
+                      ({pad(i + 1)} / {pad(projects.length)})
+                    </span>
+                    {project.context && <span>{project.context}</span>}
+                  </div>
+                  <h3 className="work__title">{project.title}</h3>
+                  <p className="work__kind">{project.kind}</p>
+                </div>
+
+                <div className="work__body">
+                  <p className="work__desc">{project.description}</p>
+
+                  {project.metrics && (
+                    <dl className="metrics">
+                      {project.metrics.map((metric) => (
+                        <div key={metric.label}>
+                          <dd>{metric.value}</dd>
+                          <dt className="label">{metric.label}</dt>
+                        </div>
+                      ))}
+                    </dl>
+                  )}
+
+                  <ul className="chips" aria-label="Built with">
+                    {project.stack.map((tech) => (
+                      <li key={tech}>{tech}</li>
+                    ))}
+                  </ul>
+
+                  <div className="work__links">
+                    {project.links.map((link) => (
+                      <a className="link" key={link.label} href={link.href} {...external}>
+                        {link.label} <span>↗</span>
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </Reveal>
+          )
+        })}
       </div>
     </section>
   )
 }
 
-/* ---------- Up close (draggable strip) ---------- */
+/* ---------- Highlights (draggable strip) ---------- */
 
-export function UpClose() {
+export function Highlights() {
   const { motionOn } = useMotionPref()
   const barRef = useRef<HTMLElement>(null)
   const stripRef = useDragScroll<HTMLDivElement>(motionOn, (progress) => {
@@ -150,20 +192,20 @@ export function UpClose() {
   })
 
   return (
-    <section className="section section--flush" aria-labelledby="close-title">
+    <section className="section section--flush" aria-labelledby="highlights-title">
       <header className="section__head section__head--pad">
-        <h2 className="label" id="close-title">
-          (Up close)
+        <h2 className="label" id="highlights-title">
+          (Highlights)
         </h2>
         <span className="label">Drag or scroll →</span>
       </header>
-      <div className="strip" ref={stripRef} tabIndex={0} role="group" aria-label="Project details, scroll horizontally">
-        {closeUps.map((item, i) => (
-          <figure className={`strip__card strip__card--${item.size}`} key={i}>
-            <Visual colors={item.colors} mock={item.mock} word={item.word} flip={i % 4 === 2} image={item.image} />
-            <figcaption className="label">
-              <span>{item.project}</span>
-              <span>{item.caption}</span>
+      <div className="strip" ref={stripRef} tabIndex={0} role="group" aria-label="Highlights, scroll horizontally">
+        {highlights.map((item) => (
+          <figure className={`strip__card strip__card--${item.size}`} key={item.title}>
+            <Visual colors={item.colors} word={item.stat} />
+            <figcaption>
+              <span className="label">{item.title}</span>
+              <p>{item.detail}</p>
             </figcaption>
           </figure>
         ))}
@@ -212,30 +254,45 @@ export function About() {
             </div>
           ))}
         </Reveal>
+
+        <div className="roles">
+          <Reveal as="h3" className="label">
+            (Leadership)
+          </Reveal>
+          <ul>
+            {roles.map((role, i) => (
+              <Reveal as="li" className="role" key={role.title} delay={i * 0.08}>
+                <span className="label">{role.period}</span>
+                <div>
+                  <h4>{role.title}</h4>
+                  <p className="role__org">{role.org}</p>
+                </div>
+                <p className="role__desc">{role.description}</p>
+              </Reveal>
+            ))}
+          </ul>
+        </div>
       </div>
     </section>
   )
 }
 
-/* ---------- Services ---------- */
+/* ---------- Toolkit ---------- */
 
-export function Services() {
+export function Toolkit() {
   return (
-    <section className="section" id="services">
+    <section className="section" id="toolkit">
       <header className="section__head">
         <Reveal as="h2" className="section__title">
-          What I do <sup>({pad(services.length)})</sup>
+          Toolkit <sup>({pad(toolkit.length)})</sup>
         </Reveal>
       </header>
       <ol className="services">
-        {services.map((service, i) => (
-          <Reveal as="li" className="service" key={service.title} delay={i * 0.06}>
+        {toolkit.map((item, i) => (
+          <Reveal as="li" className="service" key={item.title} delay={i * 0.06}>
             <span className="label">{pad(i + 1)}</span>
-            <h3>{service.title}</h3>
-            <p>{service.description}</p>
-            <span className="service__arrow" aria-hidden="true">
-              ↗
-            </span>
+            <h3>{item.title}</h3>
+            <p>{item.description}</p>
           </Reveal>
         ))}
       </ol>
@@ -293,7 +350,7 @@ export function Footer() {
           <ul>
             {site.socials.map((social) => (
               <li key={social.label}>
-                <a className="link" href={social.href} target="_blank" rel="noopener noreferrer">
+                <a className="link" href={social.href} {...external}>
                   {social.label} <span>↗</span>
                 </a>
               </li>
@@ -321,7 +378,7 @@ export function Footer() {
       </div>
       <div className="footer__base label">
         <span>
-          © {new Date().getFullYear()} {site.name}
+          © {new Date().getFullYear()} {site.fullName}
         </span>
         <a href="#top">Back to top ↑</a>
       </div>

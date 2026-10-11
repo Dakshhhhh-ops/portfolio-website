@@ -2,61 +2,64 @@
  * Everything the site says lives in this file.
  * Edit the values below — no need to touch the components.
  */
+import sifTraceShot from '../assets/sif-trace.webp'
 
 export type Colors = { c1: string; c2: string; ink: string }
 
 export type Project = {
   title: string
-  year: string
+  /** Short word set large behind the placeholder artwork (defaults to the title) */
+  word?: string
   kind: string
+  /** Optional line shown beside the kind, e.g. the event it was built for */
+  context?: string
   description: string
-  href: string
+  metrics?: { value: string; label: string }[]
+  stack: string[]
+  links: { label: string; href: string }[]
   /** Placeholder artwork style, used until `image` is set */
   mock: 'browser' | 'phone'
   colors: Colors
-  /** Real screenshot, e.g. import shot from '../assets/nimbus.jpg' */
+  /** Real screenshot: drop the file in src/assets, import it above, and set it here */
   image?: { src: string; alt: string }
 }
 
-export type CloseUp = {
-  project: string
-  caption: string
+export type Highlight = {
+  stat: string
+  title: string
+  detail: string
   size: 'tall' | 'wide'
   colors: Colors
-  mock?: 'browser' | 'phone'
-  word?: string
-  image?: { src: string; alt: string }
 }
 
 export const site = {
   name: 'Daksh',
-  role: 'Developer & Designer',
-  location: 'India',
+  fullName: 'Daksh Wadhwa',
+  role: 'Software Engineer',
+  location: 'NIT Hamirpur, IN',
   timeZone: 'Asia/Kolkata',
   timeZoneLabel: 'IST',
-  available: true,
-  // TODO: replace with your real email
-  email: 'your@email.com',
+  status: 'Open to internships',
+  email: 'dakshwadhwa2007@gmail.com',
   intro: {
-    text: 'I design and build websites and apps that feel',
-    highlight: 'fast, clear and alive.',
+    text: 'I build secure, cloud-native software and applied-AI systems that',
+    highlight: 'actually ship.',
   },
-  tags: ['Design', 'Front-end', 'Motion', 'React', 'Next.js', 'UI / UX'],
-  marquee: ['Interfaces', 'Interaction', 'Web apps', 'Design systems', 'Motion', 'Prototypes'],
+  tags: ['AWS', 'Serverless', 'Security', 'Python', 'TypeScript', 'AI agents'],
+  marquee: ['Cloud-native', 'Security-first', 'AI agents', 'Serverless', 'RAG', 'Hackathon winner'],
   about: {
-    lead: "I'm Daksh — a developer and designer who likes the part where an idea becomes something you can click. I sketch in Figma, build in code, and sweat the small details that make a product feel good to use.",
+    lead: "I'm Daksh, a third-year B.Tech student at NIT Hamirpur building secure, cloud-native software. I work across backend systems, AWS and applied AI, and I like delivering working products under tight deadlines. That habit has won me two hackathons so far.",
     facts: [
-      { label: 'Currently', text: 'Building side projects and taking on freelance work.' },
-      { label: 'Focus', text: 'Front-end, interaction design, and interfaces with real motion in them.' },
-      { label: 'Stack', text: 'TypeScript, React, Next.js, Node, Motion, Figma.' },
+      { label: 'Education', text: 'B.Tech in Electrical Engineering, NIT Hamirpur. 2024 – 2028 · CGPA 8.78 / 10.' },
+      { label: 'Focus', text: 'Cloud security, backend systems and applied AI — agents, RAG and NLP.' },
+      { label: 'Core CS', text: 'Data structures & algorithms, OOP, DBMS, operating systems, computer networks.' },
     ],
   },
-  contactNote: 'Open to freelance projects, internships and good ideas. I usually reply within a day.',
-  // TODO: add your real profile links
+  contactNote: 'Open to internships, collaborations and hackathon teams. The fastest way to reach me is email.',
   socials: [
     { label: 'GitHub', href: 'https://github.com/Dakshhhhh-ops' },
-    { label: 'LinkedIn', href: '#' },
-    { label: 'Instagram', href: '#' },
+    { label: 'LinkedIn', href: 'https://www.linkedin.com/in/daksh-wadhwa-1a322722a/' },
+    { label: 'LeetCode', href: 'https://leetcode.com/u/daksh120/' },
   ],
 }
 
@@ -64,66 +67,122 @@ const blue: Colors = { c1: '#2b3cff', c2: '#080b33', ink: '#dfe3ff' }
 const orange: Colors = { c1: '#ff6a3d', c2: '#3a0f02', ink: '#ffe9df' }
 const lime: Colors = { c1: '#d9ff5a', c2: '#33400a', ink: '#10140a' }
 const sand: Colors = { c1: '#e9e3d6', c2: '#8d8674', ink: '#141310' }
-const coal: Colors = { c1: '#1c1b19', c2: '#0f0e0d', ink: '#edeae3' }
+const coal: Colors = { c1: '#24221f', c2: '#0f0e0d', ink: '#edeae3' }
 
-// TODO: these four are SAMPLE projects — replace them with your own work
+/** The first project is shown large, as the featured one. */
 export const projects: Project[] = [
   {
-    title: 'Nimbus',
-    year: '2026',
-    kind: 'Web app',
-    description: 'A weather dashboard that turns raw forecasts into something you can read at a glance.',
-    href: '#',
+    title: 'Arcade',
+    kind: 'Security-focused agent development environment',
+    description:
+      'A multi-agent pipeline that scans AI-generated code against security rules, auto-fixes what it finds, and opens a pull request only after tests pass and a human approves. Clients hold zero cloud credentials: every bit of cloud access is brokered through a serverless AWS backend deployed with CDK. Ships as a web app, an Electron IDE, a mobile app, and a CLI + MCP server.',
+    metrics: [
+      { value: '14', label: 'security rules' },
+      { value: '70+', label: 'Jest tests' },
+      { value: '0', label: 'client-held credentials' },
+    ],
+    stack: ['TypeScript', 'Next.js', 'Electron', 'AWS Lambda', 'DynamoDB', 'Cognito', 'CDK', 'Bedrock', 'Docker', 'Jest'],
+    // The live demo (https://d20wyf3rpbds1d.cloudfront.net/) currently returns 404 — add it back here once it's up
+    links: [{ label: 'GitHub', href: 'https://github.com/ayushagarwalhere/arcade' }],
     mock: 'browser',
     colors: blue,
   },
   {
-    title: 'Ledger',
-    year: '2025',
-    kind: 'Mobile app',
-    description: 'Expense tracking for students — split bills, set budgets, see where it all went.',
-    href: '#',
-    mock: 'phone',
+    title: 'SIF-Trace',
+    kind: 'AI / NLP engine for SIF precursor detection',
+    context: 'Smart India Hackathon 2026 · Oil India Ltd.',
+    description:
+      'A hybrid NLP and rule-engine pipeline that flags safety reports with serious-injury potential and maps them to IOGP life-saving rules, using outcome masking to avoid label leakage. Comes with a React + FastAPI dashboard for site risk ranking and a review queue.',
+    metrics: [
+      { value: '0.919', label: 'ROC-AUC' },
+      { value: '12,864', label: 'reports analysed' },
+      { value: '28s → 2.6s', label: 'cold start' },
+    ],
+    stack: ['Python', 'scikit-learn', 'TF-IDF', 'FastAPI', 'React', 'Tailwind CSS'],
+    links: [
+      { label: 'Live demo', href: 'https://sif-trace.onrender.com/dashboard' },
+      { label: 'GitHub', href: 'https://github.com/Dakshhhhh-ops/SIF-Trace' },
+    ],
+    mock: 'browser',
+    colors: sand,
+    image: { src: sifTraceShot, alt: 'SIF-Trace safety intelligence dashboard showing report counts, risk overview and site risk ranking' },
+  },
+  {
+    title: 'Financial Document RAG',
+    word: 'RAG',
+    kind: 'Retrieval-augmented Q&A for financial reports',
+    description:
+      'A RAG backend for 10-Ks and annual reports with table-aware chunking, hybrid lexical-semantic search and citation-aware answers that point back to the source page. Includes retrieval evaluation metrics to measure answer quality.',
+    stack: ['Python', 'LangChain', 'Groq', 'FAISS', 'HuggingFace embeddings', 'FastAPI', 'Streamlit'],
+    links: [{ label: 'GitHub', href: 'https://github.com/Dakshhhhh-ops/financial-document-rag' }],
+    mock: 'browser',
+    colors: orange,
+  },
+]
+
+export const highlights: Highlight[] = [
+  {
+    stat: '1st',
+    title: 'Electrothon 8.0 · IQAI Track',
+    detail: 'Won the $400 prize for the best AI/ML solution among 120+ teams.',
+    size: 'tall',
     colors: orange,
   },
   {
-    title: 'Pulse',
-    year: '2025',
-    kind: 'Dashboard',
-    description: 'Real-time analytics for small teams, with charts that explain themselves.',
-    href: '#',
-    mock: 'browser',
+    stat: 'Top 10',
+    title: 'Smart India Hackathon 2026',
+    detail: 'SIF-Trace was selected in the college top 10 out of 200+ submissions.',
+    size: 'wide',
+    colors: blue,
+  },
+  {
+    stat: '1st',
+    title: 'Slab Hackathon',
+    detail: 'First among 100+ teams. Hosted by GDG on Campus NIT Hamirpur with WebCMD.',
+    size: 'tall',
     colors: lime,
   },
   {
-    title: 'Atlas',
-    year: '2024',
-    kind: 'Brand site',
-    description: 'A scroll-led site for a travel studio — big type, bigger photographs.',
-    href: '#',
-    mock: 'phone',
+    stat: '200+',
+    title: 'LeetCode',
+    detail: 'Problems solved across data structures, algorithms and dynamic programming.',
+    size: 'wide',
     colors: sand,
+  },
+  {
+    stat: '8.78',
+    title: 'CGPA · NIT Hamirpur',
+    detail: 'Out of 10 in Electrical Engineering — department rank 13 of 125.',
+    size: 'wide',
+    colors: coal,
   },
 ]
 
-export const closeUps: CloseUp[] = [
-  { project: 'Nimbus', caption: 'Mobile', size: 'tall', colors: blue, mock: 'phone' },
-  { project: 'Ledger', caption: 'Type system', size: 'wide', colors: orange, word: 'Aa' },
-  { project: 'Pulse', caption: 'Mobile', size: 'tall', colors: lime, mock: 'phone' },
-  { project: 'Atlas', caption: 'Detail', size: 'wide', colors: sand, mock: 'browser' },
-  { project: 'Nimbus', caption: 'Icon set', size: 'tall', colors: coal, word: '✳' },
-  { project: 'Ledger', caption: 'Web', size: 'wide', colors: { c1: '#2b3cff', c2: '#ff6a3d', ink: '#ffffff' }, mock: 'browser' },
+export const toolkit = [
+  { title: 'Cloud', description: 'AWS Lambda, S3, CloudFront, Cognito, DynamoDB, CDK and Bedrock. Serverless by default.' },
+  { title: 'Security', description: 'Secure code scanning, Cognito auth, zero-credential clients and human-in-the-loop approval flows.' },
+  { title: 'Full-stack', description: 'FastAPI, Flask and REST APIs behind React, Next.js, Electron and Tailwind CSS.' },
+  { title: 'Applied AI', description: 'LangChain, RAG, AI agents, MCP, FAISS and vector DBs. scikit-learn, TensorFlow and NLP.' },
+  { title: 'DevOps', description: 'Docker, GitHub Actions CI/CD, Git, Jest and MLflow. Python, C++, TypeScript, JavaScript, SQL.' },
 ]
 
-export const services = [
-  { title: 'Websites', description: 'Fast, responsive marketing sites and portfolios, designed and built from scratch.' },
-  { title: 'Web apps', description: 'Dashboards, tools and products in React and Next.js, with clean, maintainable code.' },
-  { title: 'UI design', description: 'Interfaces and design systems in Figma that are ready to hand off — or for me to build.' },
-  { title: 'Motion', description: 'Scroll effects, transitions and micro-interactions that give a product its personality.' },
+export const roles = [
+  {
+    title: 'Co-Convener',
+    org: 'In4mals, NIT Hamirpur',
+    period: 'Present',
+    description: 'Led 50+ volunteers to run Campus Star — 600+ attendees and 20+ performances — owning scheduling and on-ground logistics.',
+  },
+  {
+    title: 'Executive',
+    org: 'Team .EXE & GDG on Campus, NIT Hamirpur',
+    period: 'Aug 2024 – Present',
+    description: 'Led technical projects across dev and design teams, mentored 30+ participants at campus tech events, and organised AI/ML and model-deployment workshops for 50+ students.',
+  },
 ]
 
 export const nav = [
   { label: 'Work', href: '#work' },
   { label: 'About', href: '#about' },
-  { label: 'Services', href: '#services' },
+  { label: 'Toolkit', href: '#toolkit' },
 ]

@@ -1,4 +1,4 @@
-# Daksh — Portfolio
+# Daksh Wadhwa — Portfolio
 
 Personal portfolio site. A single page with a lot of movement in it.
 
@@ -16,15 +16,15 @@ npm run preview  # serve the production build
 ## Edit the content
 
 Everything the site says lives in [`src/data/content.ts`](src/data/content.ts) — name, intro,
-projects, services, email and social links. Items marked `TODO` are placeholders.
+projects, highlights, toolkit, leadership roles, email and social links.
 
-Project artwork is drawn in CSS until you add a real screenshot. Drop the image into
-`src/assets/` and set `image` on the project:
+Project artwork is drawn in CSS until you add a real screenshot (SIF-Trace already has one).
+Drop the image into `src/assets/` and set `image` on the project:
 
 ```ts
-import nimbusShot from '../assets/nimbus.jpg'
+import arcadeShot from '../assets/arcade.webp'
 
-{ title: 'Nimbus', /* … */ image: { src: nimbusShot, alt: 'Nimbus dashboard' } }
+{ title: 'Arcade', /* … */ image: { src: arcadeShot, alt: 'Arcade workbench' } }
 ```
 
 Colours, fonts and spacing are CSS variables at the top of
@@ -36,7 +36,7 @@ Colours, fonts and spacing are CSS variables at the top of
 src/
   data/content.ts         all copy and project data
   components/
-    sections.tsx          Hero, Marquee, Work, UpClose, About, Services, Contact, Footer
+    sections.tsx          Hero, Marquee, Work, Highlights, About, Toolkit, Contact, Footer
     Header.tsx            fixed header + mobile menu
     Visual.tsx            project artwork (image or CSS placeholder) with parallax
     ui.tsx                Reveal, Magnetic, Cursor

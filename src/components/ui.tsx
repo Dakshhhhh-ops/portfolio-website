@@ -4,8 +4,8 @@ import { useMotionPref } from '../context/MotionContext'
 
 export const EASE_OUT = [0.16, 1, 0.3, 1] as const
 
-type RevealTag = 'div' | 'p' | 'h2' | 'li' | 'a' | 'dl'
-type RevealProps = Omit<HTMLMotionProps<'div'>, 'ref'> & { as?: RevealTag; delay?: number; href?: string }
+type RevealTag = 'div' | 'p' | 'h2' | 'h3' | 'li' | 'article' | 'dl'
+type RevealProps = Omit<HTMLMotionProps<'div'>, 'ref'> & { as?: RevealTag; delay?: number }
 
 /** Fades and lifts its content into place the first time it scrolls into view. */
 export function Reveal({ as = 'div', delay = 0, ...props }: RevealProps) {

@@ -1,7 +1,7 @@
 import { MotionProvider, useMotionPref } from './context/MotionContext'
 import { useLenis } from './hooks'
 import { Header } from './components/Header'
-import { About, Contact, Footer, Hero, Marquee, Services, UpClose, Work } from './components/sections'
+import { About, Contact, Footer, Hero, Highlights, Marquee, Toolkit, Work } from './components/sections'
 import { Cursor } from './components/ui'
 
 function Page() {
@@ -18,9 +18,9 @@ function Page() {
         <Hero />
         <Marquee />
         <Work />
-        <UpClose />
+        <Highlights />
         <About />
-        <Services />
+        <Toolkit />
         <Contact />
       </main>
       <Footer />

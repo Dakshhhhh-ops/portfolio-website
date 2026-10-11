@@ -44,7 +44,7 @@ export function Header() {
           ))}
           <Magnetic>
             <a className="btn btn--small" href="#contact">
-              Start a project
+              Get in touch
             </a>
           </Magnetic>
         </nav>
