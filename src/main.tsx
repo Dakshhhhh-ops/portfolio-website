@@ -4,6 +4,10 @@ import 'lenis/dist/lenis.css'
 import './styles/global.css'
 import App from './App'
 
+// Always start at the top so the intro plays from the beginning
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual'
+window.scrollTo(0, 0)
+
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <App />

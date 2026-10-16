@@ -1,9 +1,23 @@
-import { Fragment, useRef, useState } from 'react'
-import { motion, useScroll, useTransform, type MotionValue } from 'motion/react'
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
+import { motion, useMotionValueEvent, useScroll, useTransform, type MotionValue } from 'motion/react'
 import { useMotionPref } from '../context/MotionContext'
-import { highlights, nav, projects, roles, site, toolkit } from '../data/content'
-import { useClock, useDragScroll, useFitText } from '../hooks'
-import { EASE_OUT, Magnetic, Reveal } from './ui'
+import { useReady } from '../context/ReadyContext'
+import { highlights, nav, projects, roles, site, toolkit, type Project } from '../data/content'
+import { useClock, useFitText, useMediaQuery } from '../hooks'
+import {
+  Counter,
+  EASE_OUT,
+  Eyebrow,
+  Magnetic,
+  Reveal,
+  Roll,
+  Scramble,
+  SplitWords,
+  VelocityMarquee,
+  parseEmphasis,
+  scrambleTo,
+} from './ui'
+import { Shader } from './Shader'
 import { Visual } from './Visual'
 
 const pad = (n: number) => String(n).padStart(2, '0')
@@ -11,207 +25,350 @@ const external = { target: '_blank', rel: 'noopener noreferrer' }
 
 /* ---------- Hero ---------- */
 
-export function Hero() {
-  const nameRef = useFitText<HTMLHeadingElement>()
+function FocusCycle() {
+  const ref = useRef<HTMLSpanElement>(null)
+  const { motionOn } = useMotionPref()
+
+  useEffect(() => {
+    if (!motionOn) return
+    let i = 0
+    const id = setInterval(() => {
+      i = (i + 1) % site.focus.length
+      if (ref.current) scrambleTo(ref.current, site.focus[i], 900)
+    }, 2600)
+    return () => clearInterval(id)
+  }, [motionOn])
 
   return (
-    <section className="hero" id="top">
-      <div className="hero__top label">
-        <span>
-          ({site.fullName} — {new Date().getFullYear()})
-        </span>
-        <span className="hero__role">{site.role}</span>
-        <span className="status">
-          <i />
-          {site.status}
-        </span>
-      </div>
+    <span className="hero__focus" ref={ref} aria-live="off">
+      {site.focus[0]}
+    </span>
+  )
+}
 
-      <h1 className="hero__name" ref={nameRef} aria-label={`${site.fullName}, ${site.role}`}>
-        <span className="hero__name-inner" aria-hidden="true">
-          {[...site.name].map((letter, i) => (
-            <motion.span
-              key={i}
-              initial={{ y: '105%' }}
-              animate={{ y: 0 }}
-              transition={{ duration: 1.1, ease: EASE_OUT, delay: 0.1 + i * 0.07 }}
-            >
-              {letter}
-            </motion.span>
-          ))}
-        </span>
-      </h1>
+export function Hero() {
+  const ready = useReady()
+  const { motionOn, toggle } = useMotionPref()
+  const time = useClock(site.timeZone)
+  const ref = useRef<HTMLElement>(null)
+  const nameRef = useFitText<HTMLHeadingElement>()
+  const [covered, setCovered] = useState(false)
 
-      <div className="hero__bottom">
-        <Reveal as="p" className="hero__intro" delay={0.5}>
-          {site.intro.text} <em>{site.intro.highlight}</em>
-        </Reveal>
-        <Reveal className="hero__side" delay={0.62}>
-          <ul className="tags" aria-label="Focus areas">
-            {site.tags.map((tag) => (
-              <li key={tag}>{tag}</li>
-            ))}
-          </ul>
-          <div className="hero__links">
-            <span className="label hero__scroll">
-              <b>↓</b> Scroll
+  // As the next section slides over, the hero sinks back into a rounded card.
+  // Progress is read from the page scroll directly: the hero is sticky, so its own offset never changes.
+  const { scrollY } = useScroll()
+  const scrollYProgress = useTransform(scrollY, (y) => Math.min(1, Math.max(0, y / window.innerHeight)))
+  const scale = useTransform(scrollYProgress, [0, 1], [1, motionOn ? 0.88 : 1])
+  const radius = useTransform(scrollYProgress, [0, 0.4], [0, motionOn ? 28 : 0])
+  const shade = useTransform(scrollYProgress, [0, 1], [0, 0.7])
+  const nameY = useTransform(scrollYProgress, [0, 1], ['0%', motionOn ? '40%' : '0%'])
+  useMotionValueEvent(scrollYProgress, 'change', (v) => setCovered(v >= 1))
+
+  const intro = (delay: number) => ({
+    initial: { opacity: 0, y: 20 },
+    animate: ready ? { opacity: 1, y: 0 } : undefined,
+    transition: { duration: 1, ease: EASE_OUT, delay },
+  })
+
+  return (
+    <section className={`hero${covered ? ' is-covered' : ''}`} id="top" ref={ref}>
+      <motion.div className="hero__frame" style={{ scale, borderRadius: radius }}>
+        <Shader className="hero__canvas" />
+        <motion.div className="hero__shade" style={{ opacity: shade }} />
+
+        <div className="hero__grid label">
+          <motion.p {...intro(0.6)}>
+            <span className="muted">({site.fullName})</span>
+            <br />
+            {site.role}
+          </motion.p>
+          <motion.p {...intro(0.68)}>
+            <span className="muted">(Focus)</span>
+            <br />
+            <FocusCycle />
+          </motion.p>
+          <motion.p {...intro(0.76)}>
+            <span className="muted">({site.location})</span>
+            <br />
+            {time} {site.timeZoneLabel}
+          </motion.p>
+          <motion.p className="hero__status" {...intro(0.84)}>
+            <span className="status">
+              <i />
+              {site.status}
             </span>
-            <a className="link" href="#work">
-              See the work <span>→</span>
-            </a>
-          </div>
+            <br />
+            <button className="textbtn" type="button" aria-pressed={!motionOn} onClick={toggle}>
+              ({motionOn ? 'Pause' : 'Play'} motion)
+            </button>
+          </motion.p>
+        </div>
+
+        <div className="hero__middle">
+          <SplitWords as="p" className="hero__intro" text={site.intro} play={ready} delay={0.45} stagger={0.04} />
+          <motion.a className="hero__scroll label" href="#work" {...intro(1)}>
+            <span className="hero__scroll-line" />
+            Scroll to explore
+          </motion.a>
+        </div>
+
+        <motion.h1
+          className="hero__name"
+          ref={nameRef}
+          style={{ y: nameY }}
+          aria-label={`${site.fullName}, ${site.role}`}
+        >
+          <span className="hero__name-inner" aria-hidden="true">
+            {[...site.name].map((letter, i) => (
+              <span className="mask" key={i}>
+                <motion.span
+                  initial={{ y: '105%' }}
+                  animate={ready ? { y: '0%' } : undefined}
+                  transition={{ duration: 1.3, ease: EASE_OUT, delay: 0.1 + i * 0.07 }}
+                >
+                  {letter}
+                </motion.span>
+              </span>
+            ))}
+          </span>
+        </motion.h1>
+      </motion.div>
+    </section>
+  )
+}
+
+/* ---------- Statement ---------- */
+
+function LitWord({ children, em, progress, range }: { children: string; em: boolean; progress: MotionValue<number>; range: [number, number] }) {
+  const opacity = useTransform(progress, range, [0.14, 1])
+  return (
+    <motion.span className={em ? 'em' : undefined} style={{ opacity }}>
+      {children}
+    </motion.span>
+  )
+}
+
+export function Statement() {
+  const ref = useRef<HTMLParagraphElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.85', 'end 0.5'] })
+  const words = parseEmphasis(site.statement)
+
+  return (
+    <section className="panel statement">
+      <div className="statement__head">
+        <Eyebrow n="01">Intro</Eyebrow>
+        <Reveal as="ul" className="tags" aria-label="Focus areas">
+          {site.tags.map((tag) => (
+            <li key={tag}>{tag}</li>
+          ))}
         </Reveal>
+      </div>
+      <p className="statement__text" ref={ref}>
+        {words.map(({ word, em }, i) => (
+          <Fragment key={i}>
+            <LitWord em={em} progress={scrollYProgress} range={[i / words.length, (i + 1) / words.length]}>
+              {word}
+            </LitWord>{' '}
+          </Fragment>
+        ))}
+      </p>
+
+      <VelocityMarquee>
+        {site.marquee.map((item, i) => (
+          <Fragment key={item}>
+            <span className={i % 2 ? 'is-outline' : undefined}>{item}</span>
+            <i>✳</i>
+          </Fragment>
+        ))}
+      </VelocityMarquee>
+    </section>
+  )
+}
+
+/* ---------- Selected work (stacking cards) ---------- */
+
+export function Work() {
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
+
+  return (
+    <section className="panel work" id="work">
+      <header className="section-head">
+        <Eyebrow n="02">Selected work</Eyebrow>
+        <SplitWords as="h2" className="display" text="Things I've *built*" />
+        <Reveal as="p" className="section-head__note">
+          {pad(projects.length)} projects across cloud security, applied AI and retrieval. Each one shipped, tested and
+          open source.
+        </Reveal>
+      </header>
+
+      <div className="stack" ref={ref}>
+        {projects.map((project, i) => (
+          <ProjectCard key={project.title} project={project} index={i} progress={scrollYProgress} />
+        ))}
       </div>
     </section>
   )
 }
 
-/* ---------- Marquee ---------- */
+function ProjectCard({ project, index, progress }: { project: Project; index: number; progress: MotionValue<number> }) {
+  const { motionOn } = useMotionPref()
+  // Cards only stack (and so only shrink and dim) on wider screens
+  const stacked = useMediaQuery('(min-width: 901px)') && motionOn
+  const total = projects.length
+  const steps = Math.max(1, total - 1)
+  const last = index === total - 1
+  // Card i settles at progress i / steps; from there it shrinks and dims as the next ones stack on top
+  const scale = useTransform(progress, [Math.min(index / steps, 0.99), 1], [1, stacked ? 1 - (total - 1 - index) * 0.05 : 1])
+  const dim = useTransform(progress, [Math.min(index / steps, 0.99), Math.min((index + 1) / steps, 1)], [0, last || !stacked ? 0 : 0.6])
+  const primary = project.links[0]
 
-export function Marquee() {
-  // Rendered twice so the CSS animation can loop without a seam
-  const items = [...site.marquee, ...site.marquee]
   return (
-    <div className="marquee" aria-hidden="true">
-      <div className="marquee__track">
-        {items.map((item, i) => (
-          <Fragment key={i}>
-            <span>{item}</span>
-            <i>✳</i>
-          </Fragment>
-        ))}
-      </div>
+    <div className="stack__item" style={{ '--i': index } as CSSProperties}>
+      <motion.article className="card" style={{ scale }}>
+        <motion.div className="card__dim" style={{ opacity: dim }} aria-hidden="true" />
+        <div className="card__top label">
+          <span>
+            ({pad(index + 1)} / {pad(total)})
+          </span>
+          <span>{project.context ?? project.kind}</span>
+          <span className="card__stack-count">{project.stack.length} technologies</span>
+        </div>
+
+        <div className="card__body">
+          <div className="card__info">
+            <h3 className="card__title">{project.title}</h3>
+            <p className="card__kind">{project.kind}</p>
+            <p className="card__desc">{project.description}</p>
+
+            {project.metrics && (
+              <dl className="metrics">
+                {project.metrics.map((metric) => (
+                  <div key={metric.label}>
+                    <dd>{metric.value}</dd>
+                    <dt className="label">{metric.label}</dt>
+                  </div>
+                ))}
+              </dl>
+            )}
+
+            <ul className="chips" aria-label="Built with">
+              {project.stack.map((tech) => (
+                <li key={tech}>{tech}</li>
+              ))}
+            </ul>
+
+            <div className="card__links">
+              {project.links.map((link, i) => (
+                <Magnetic key={link.label} strength={0.2}>
+                  <a className={`btn btn--small${i === 0 ? ' btn--fill' : ''}`} href={link.href} {...external}>
+                    <Roll>{link.label}</Roll>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </Magnetic>
+              ))}
+            </div>
+          </div>
+
+          <motion.a
+            className="card__media"
+            href={primary.href}
+            {...external}
+            data-cursor={primary.label === 'Live demo' ? 'Open ↗' : 'Code ↗'}
+            aria-label={`${project.title} — ${primary.label}`}
+            initial={{ clipPath: 'inset(100% 0% 0% 0% round 14px)' }}
+            whileInView={{ clipPath: 'inset(0% 0% 0% 0% round 14px)' }}
+            viewport={{ once: true, margin: '0px 0px -15% 0px' }}
+            transition={{ duration: 1.4, ease: EASE_OUT }}
+          >
+            <Visual
+              colors={project.colors}
+              mock={project.mock}
+              word={project.word ?? project.title}
+              flip={index % 2 === 1}
+              image={project.image}
+              terminal={project.terminal}
+              parallax
+            />
+          </motion.a>
+        </div>
+      </motion.article>
     </div>
   )
 }
 
-/* ---------- Selected work ---------- */
-
-export function Work() {
-  const { motionOn, toggle } = useMotionPref()
-
-  return (
-    <section className="section" id="work">
-      <header className="section__head">
-        <Reveal as="h2" className="section__title">
-          Selected work <sup>({pad(projects.length)})</sup>
-        </Reveal>
-        <Reveal className="section__aside label">
-          <button className="textbtn" type="button" aria-pressed={!motionOn} onClick={toggle}>
-            ({motionOn ? 'Pause' : 'Play'} motion)
-          </button>
-        </Reveal>
-      </header>
-
-      <div className="works">
-        {projects.map((project, i) => {
-          const featured = i === 0
-          // After the full-width featured card, every second card sits lower for a staggered grid
-          const dropped = !featured && i % 2 === 0
-          const primary = project.links[0]
-          return (
-            <Reveal
-              as="article"
-              className={`work${featured ? ' work--feature' : ''}${dropped ? ' work--drop' : ''}`}
-              key={project.title}
-              delay={dropped ? 0.12 : 0}
-            >
-              <a
-                className="work__media"
-                href={primary.href}
-                {...external}
-                data-cursor={primary.label === 'Live demo' ? 'Open' : 'Code'}
-                aria-label={`${project.title} — ${primary.label}`}
-              >
-                <Visual
-                  colors={project.colors}
-                  mock={project.mock}
-                  word={project.word ?? project.title}
-                  flip={i % 2 === 1}
-                  image={project.image}
-                  parallax
-                />
-              </a>
-
-              <div className="work__info">
-                <div className="work__head">
-                  <div className="work__meta label">
-                    <span>
-                      ({pad(i + 1)} / {pad(projects.length)})
-                    </span>
-                    {project.context && <span>{project.context}</span>}
-                  </div>
-                  <h3 className="work__title">{project.title}</h3>
-                  <p className="work__kind">{project.kind}</p>
-                </div>
-
-                <div className="work__body">
-                  <p className="work__desc">{project.description}</p>
-
-                  {project.metrics && (
-                    <dl className="metrics">
-                      {project.metrics.map((metric) => (
-                        <div key={metric.label}>
-                          <dd>{metric.value}</dd>
-                          <dt className="label">{metric.label}</dt>
-                        </div>
-                      ))}
-                    </dl>
-                  )}
-
-                  <ul className="chips" aria-label="Built with">
-                    {project.stack.map((tech) => (
-                      <li key={tech}>{tech}</li>
-                    ))}
-                  </ul>
-
-                  <div className="work__links">
-                    {project.links.map((link) => (
-                      <a className="link" key={link.label} href={link.href} {...external}>
-                        {link.label} <span>↗</span>
-                      </a>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </Reveal>
-          )
-        })}
-      </div>
-    </section>
-  )
-}
-
-/* ---------- Highlights (draggable strip) ---------- */
+/* ---------- Highlights (pinned horizontal scroll) ---------- */
 
 export function Highlights() {
   const { motionOn } = useMotionPref()
-  const barRef = useRef<HTMLElement>(null)
-  const stripRef = useDragScroll<HTMLDivElement>(motionOn, (progress) => {
-    if (barRef.current) barRef.current.style.transform = `scaleX(${0.1 + 0.9 * progress})`
-  })
+  const wide = useMediaQuery('(min-width: 900px)')
+  const pinned = wide && motionOn
+  const sectionRef = useRef<HTMLElement>(null)
+  const trackRef = useRef<HTMLDivElement>(null)
+  const [distance, setDistance] = useState(0)
+
+  useLayoutEffect(() => {
+    const track = trackRef.current
+    if (!pinned || !track) return
+    const measure = () => setDistance(Math.max(0, track.scrollWidth - window.innerWidth))
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(track)
+    window.addEventListener('resize', measure)
+    return () => {
+      ro.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  }, [pinned])
+
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end end'] })
+  const x = useTransform(scrollYProgress, (v) => (pinned ? -v * distance : 0))
 
   return (
-    <section className="section section--flush" aria-labelledby="highlights-title">
-      <header className="section__head section__head--pad">
-        <h2 className="label" id="highlights-title">
-          (Highlights)
-        </h2>
-        <span className="label">Drag or scroll →</span>
-      </header>
-      <div className="strip" ref={stripRef} tabIndex={0} role="group" aria-label="Highlights, scroll horizontally">
-        {highlights.map((item) => (
-          <figure className={`strip__card strip__card--${item.size}`} key={item.title}>
-            <Visual colors={item.colors} word={item.stat} />
-            <figcaption>
-              <span className="label">{item.title}</span>
-              <p>{item.detail}</p>
-            </figcaption>
-          </figure>
-        ))}
-      </div>
-      <div className="strip__progress" aria-hidden="true">
-        <i ref={barRef} />
+    <section
+      className={`panel highlights${pinned ? ' is-pinned' : ''}`}
+      id="highlights"
+      ref={sectionRef}
+      style={pinned ? { height: `calc(100vh + ${distance}px)` } : undefined}
+      aria-labelledby="highlights-title"
+    >
+      <div className="highlights__sticky">
+        <motion.div className="highlights__track" ref={trackRef} style={{ x }}>
+          <div className="highlights__intro">
+            <Eyebrow n="03">Highlights</Eyebrow>
+            <h2 className="display" id="highlights-title">
+              Proof, <em>not promises.</em>
+            </h2>
+            <p className="highlights__note">
+              Hackathon wins, ranks and numbers from the last two years.{' '}
+              <span className="label">{pinned ? 'Keep scrolling →' : 'Swipe →'}</span>
+            </p>
+          </div>
+
+          {highlights.map((item, i) => (
+            <article
+              className="hl"
+              key={item.title}
+              style={{ '--c1': item.colors.c1, '--c2': item.colors.c2, '--ink': item.colors.ink } as CSSProperties}
+            >
+              <div className="hl__top label">
+                <span>({pad(i + 1)})</span>
+                <span>✳</span>
+              </div>
+              <p className="hl__stat">
+                <Counter value={item.stat} />
+              </p>
+              <div className="hl__text">
+                <h3>{item.title}</h3>
+                <p>{item.detail}</p>
+              </div>
+            </article>
+          ))}
+        </motion.div>
+
+        <div className="highlights__progress" aria-hidden="true">
+          <motion.i style={{ scaleX: scrollYProgress }} />
+        </div>
       </div>
     </section>
   )
@@ -219,37 +376,21 @@ export function Highlights() {
 
 /* ---------- About ---------- */
 
-function Word({ children, progress, range }: { children: string; progress: MotionValue<number>; range: [number, number] }) {
-  const opacity = useTransform(progress, range, [0.18, 1])
-  return <motion.span style={{ opacity }}>{children}</motion.span>
-}
-
 export function About() {
-  const leadRef = useRef<HTMLParagraphElement>(null)
-  // Words light up one by one as the paragraph travels up the viewport
-  const { scrollYProgress } = useScroll({ target: leadRef, offset: ['start 0.85', 'end 0.45'] })
-  const words = site.about.lead.split(/\s+/)
-
   return (
-    <section className="section about" id="about">
-      <Reveal as="h2" className="label">
-        (Hello)
-      </Reveal>
-      <div className="about__body">
-        <p className="about__lead" ref={leadRef}>
-          {words.map((word, i) => (
-            <Fragment key={i}>
-              <Word progress={scrollYProgress} range={[i / words.length, (i + 1) / words.length]}>
-                {word}
-              </Word>{' '}
-            </Fragment>
-          ))}
-        </p>
+    <section className="panel about" id="about">
+      <header className="section-head">
+        <Eyebrow n="04">Background</Eyebrow>
+        <SplitWords as="h2" className="display display--md" text={site.about.title} />
+      </header>
 
+      <div className="about__grid">
         <Reveal as="dl" className="facts">
-          {site.about.facts.map((fact) => (
+          {site.about.facts.map((fact, i) => (
             <div key={fact.label}>
-              <dt className="label">{fact.label}</dt>
+              <dt className="label">
+                ({pad(i + 1)}) {fact.label}
+              </dt>
               <dd>{fact.text}</dd>
             </div>
           ))}
@@ -257,16 +398,16 @@ export function About() {
 
         <div className="roles">
           <Reveal as="h3" className="label">
-            (Leadership)
+            Leadership
           </Reveal>
           <ul>
             {roles.map((role, i) => (
-              <Reveal as="li" className="role" key={role.title} delay={i * 0.08}>
-                <span className="label">{role.period}</span>
-                <div>
+              <Reveal as="li" className="role" key={role.title} delay={i * 0.1}>
+                <div className="role__head">
                   <h4>{role.title}</h4>
-                  <p className="role__org">{role.org}</p>
+                  <span className="label">{role.period}</span>
                 </div>
+                <p className="role__org">{role.org}</p>
                 <p className="role__desc">{role.description}</p>
               </Reveal>
             ))}
@@ -281,18 +422,20 @@ export function About() {
 
 export function Toolkit() {
   return (
-    <section className="section" id="toolkit">
-      <header className="section__head">
-        <Reveal as="h2" className="section__title">
-          Toolkit <sup>({pad(toolkit.length)})</sup>
-        </Reveal>
+    <section className="panel toolkit" id="toolkit">
+      <header className="section-head">
+        <Eyebrow n="05">Toolkit</Eyebrow>
+        <SplitWords as="h2" className="display" text="What I *work with*" />
       </header>
-      <ol className="services">
+      <ol className="tk">
         {toolkit.map((item, i) => (
-          <Reveal as="li" className="service" key={item.title} delay={i * 0.06}>
-            <span className="label">{pad(i + 1)}</span>
-            <h3>{item.title}</h3>
-            <p>{item.description}</p>
+          <Reveal as="li" className="tk__row" key={item.title} delay={i * 0.05}>
+            <span className="label tk__n">({pad(i + 1)})</span>
+            <h3 className="tk__title">{item.title}</h3>
+            <p className="tk__desc">{item.description}</p>
+            <span className="tk__arrow" aria-hidden="true">
+              ↗
+            </span>
           </Reveal>
         ))}
       </ol>
@@ -300,9 +443,11 @@ export function Toolkit() {
   )
 }
 
-/* ---------- Contact ---------- */
+/* ---------- Contact / footer (revealed from underneath the page) ---------- */
 
-export function Contact() {
+export function Footer() {
+  const time = useClock(site.timeZone)
+  const lineRef = useFitText<HTMLAnchorElement>()
   const [copied, setCopied] = useState(false)
 
   const copyEmail = async () => {
@@ -316,72 +461,70 @@ export function Contact() {
   }
 
   return (
-    <section className="section cta" id="contact">
-      <Reveal as="p" className="label">
-        (Got something in mind?)
-      </Reveal>
-      <Reveal>
-        <a className="cta__big" href={`mailto:${site.email}`} data-cursor="Email">
-          Let's talk<span aria-hidden="true">↗</span>
+    <div className="footer-wrap" id="contact">
+      <footer className="footer">
+        <div className="footer__top">
+          <Eyebrow n="06">Contact</Eyebrow>
+          <p className="footer__note">{site.contactNote}</p>
+        </div>
+
+        <a className="footer__line" href={`mailto:${site.email}`} ref={lineRef} data-cursor="Say hi ✳">
+          <span>
+            Let's talk<em>↗</em>
+          </span>
         </a>
-      </Reveal>
-      <Reveal className="cta__row" delay={0.1}>
-        <Magnetic>
-          <button className="btn" type="button" onClick={copyEmail} aria-live="polite">
-            {copied ? 'Copied ✓' : site.email}
-          </button>
-        </Magnetic>
-        <p className="cta__note">{site.contactNote}</p>
-      </Reveal>
-    </section>
-  )
-}
 
-/* ---------- Footer ---------- */
+        <div className="footer__row">
+          <Magnetic>
+            <button className="btn btn--fill btn--big" type="button" onClick={copyEmail} aria-live="polite">
+              {copied ? 'Copied to clipboard ✓' : site.email}
+            </button>
+          </Magnetic>
 
-export function Footer() {
-  const time = useClock(site.timeZone)
+          <div className="footer__cols">
+            <div>
+              <p className="label muted">Elsewhere</p>
+              <ul>
+                {site.socials.map((social) => (
+                  <li key={social.label}>
+                    <a className="link" href={social.href} {...external}>
+                      <Scramble text={social.label} /> <span>↗</span>
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="label muted">Sitemap</p>
+              <ul>
+                {nav.map((item) => (
+                  <li key={item.href}>
+                    <a className="link" href={item.href}>
+                      <Scramble text={item.label} />
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="label muted">Local time</p>
+              <p className="footer__time">
+                {time} {site.timeZoneLabel}
+              </p>
+            </div>
+          </div>
+        </div>
 
-  return (
-    <footer className="footer">
-      <div className="footer__cols">
-        <div>
-          <p className="label">Elsewhere</p>
-          <ul>
-            {site.socials.map((social) => (
-              <li key={social.label}>
-                <a className="link" href={social.href} {...external}>
-                  {social.label} <span>↗</span>
-                </a>
-              </li>
-            ))}
-          </ul>
+        <div className="footer__base label">
+          <span>
+            © {new Date().getFullYear()} {site.fullName}
+          </span>
+          <span className="muted">Designed & built from scratch — React, WebGL, Motion</span>
+          <a href="#top">
+            <Roll>Back to top ↑</Roll>
+          </a>
         </div>
-        <div>
-          <p className="label">Sitemap</p>
-          <ul>
-            {nav.map((item) => (
-              <li key={item.href}>
-                <a className="link" href={item.href}>
-                  {item.label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div>
-          <p className="label">Local time</p>
-          <p className="footer__time">
-            {time} {site.timeZoneLabel}
-          </p>
-        </div>
-      </div>
-      <div className="footer__base label">
-        <span>
-          © {new Date().getFullYear()} {site.fullName}
-        </span>
-        <a href="#top">Back to top ↑</a>
-      </div>
-    </footer>
+      </footer>
+    </div>
   )
 }
