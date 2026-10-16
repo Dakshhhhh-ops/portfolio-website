@@ -695,10 +695,11 @@ button:hover .roll > span, button:hover .roll::after { transform: translateY(-10
   .hero__grid { grid-template-columns: repeat(2, 1fr); row-gap: 18px; }
   .hero__grid p:nth-child(3) { display: none; }
   .hero__status { justify-self: start; text-align: left; }
-  .card__body { grid-template-columns: 1fr; grid-template-rows: auto minmax(0, 1fr); }
-  .card__desc { margin-top: 16px; padding-top: 0; }
-  .card__info { overflow: visible; }
+  .card__body { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .card__desc { font-size: 15px; }
   .card .chips, .card__top .card__stack-count { display: none; }
+  .card__top { grid-template-columns: auto 1fr; }
+  .card__top span:nth-child(2) { text-align: right; }
 }
 
 @media (max-width: 900px) {
