@@ -52,7 +52,39 @@ export function Hero() {
   const time = useClock(site.timeZone)
   const ref = useRef<HTMLElement>(null)
   const nameRef = useFitText<HTMLHeadingElement>()
+  const letterRefs = useRef<(HTMLSpanElement | null)[]>([])
   const [covered, setCovered] = useState(false)
+
+  // Letters near the pointer squeeze and thin out along the variable font's width and weight axes
+  useEffect(() => {
+    if (!motionOn || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return
+    let raf = 0
+    let mx = -1e4
+    let my = -1e4
+    const update = () => {
+      for (const el of letterRefs.current) {
+        if (!el) continue
+        const r = el.getBoundingClientRect()
+        const dx = (mx - (r.left + r.width / 2)) / r.width
+        const dy = (my - (r.top + r.height / 2)) / (r.height * 1.4)
+        const f = Math.max(0, 1 - Math.hypot(dx, dy) / 1.5)
+        el.style.fontStretch = `${125 - f * 60}%`
+        el.style.fontWeight = String(Math.round(800 - f * 550))
+      }
+    }
+    const onMove = (e: PointerEvent) => {
+      mx = e.clientX
+      my = e.clientY
+      cancelAnimationFrame(raf)
+      raf = requestAnimationFrame(update)
+    }
+    window.addEventListener('pointermove', onMove, { passive: true })
+    return () => {
+      cancelAnimationFrame(raf)
+      window.removeEventListener('pointermove', onMove)
+      for (const el of letterRefs.current) el?.removeAttribute('style')
+    }
+  }, [motionOn])
 
   // As the next section slides over, the hero sinks back into a rounded card.
   // Progress is read from the page scroll directly: the hero is sticky, so its own offset never changes.
@@ -120,7 +152,7 @@ export function Hero() {
         >
           <span className="hero__name-inner" aria-hidden="true">
             {[...site.name].map((letter, i) => (
-              <span className="mask" key={i}>
+              <span className="mask" key={i} ref={(el) => void (letterRefs.current[i] = el)}>
                 <motion.span
                   initial={{ y: '105%' }}
                   animate={ready ? { y: '0%' } : undefined}

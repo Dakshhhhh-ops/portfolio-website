@@ -351,7 +351,10 @@ button:hover .roll > span, button:hover .roll::after { transform: translateY(-10
   margin-bottom: -0.02em;
 }
 .hero__name-inner { display: inline-block; }
-.hero__name .mask { padding-bottom: 0; margin-bottom: 0; }
+.hero__name .mask {
+  padding-bottom: 0; margin-bottom: 0;
+  transition: font-stretch 0.7s var(--ease-out), font-weight 0.7s var(--ease-out);
+}
 
 /* ==========================================================================
    Panels — the content that slides over the hero
@@ -550,6 +553,7 @@ button:hover .roll > span, button:hover .roll::after { transform: translateY(-10
 .highlights:not(.is-pinned) .highlights__track {
   width: auto; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: var(--gutter); scrollbar-width: none;
 }
+.highlights:not(.is-pinned) .highlights__track { padding-bottom: 6vh; }
 .highlights:not(.is-pinned) .highlights__track > * { scroll-snap-align: start; }
 
 .highlights__intro {
