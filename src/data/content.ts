@@ -3,7 +3,6 @@
  * Edit the values below — no need to touch the components.
  */
 import drishtiShot from '../assets/drishti.webp'
-import motorShot from '../assets/motor.webp'
 import nwisShot from '../assets/nwis.webp'
 import sifTraceShot from '../assets/sif-trace.webp'
 import underpassShot from '../assets/underpass.webp'
@@ -63,7 +62,7 @@ export const site = {
     title: 'Engineer by training, *builder by habit.*',
     facts: [
       { label: 'Education', text: 'B.Tech in Electrical Engineering, NIT Hamirpur. 2024 – 2028 · CGPA 8.78 / 10.' },
-      { label: 'Focus', text: 'Agentic and verified AI, cloud security and backend systems, with a power-systems streak from Electrical Engineering.' },
+      { label: 'Focus', text: 'Agentic and verified AI, cloud security and backend systems.' },
       { label: 'Core CS', text: 'Data structures & algorithms, OOP, DBMS, operating systems, computer networks.' },
     ],
   },
@@ -195,25 +194,24 @@ export const projects: Project[] = [
     image: { src: drishtiShot, alt: 'DrishtiAI describing a street scene with an open manhole and a traffic cone' },
   },
   {
-    title: 'Motor Protection Study',
-    word: 'IEC',
-    kind: 'Protection coordination engine for a 415 V plant bus',
-    context: 'Electrical engineering',
+    title: 'Financial Document RAG',
+    word: 'RAG',
+    kind: 'Retrieval-augmented Q&A for financial reports',
     description:
-      'Takes a plant described in YAML and produces a full engineering study: short-circuit levels, protection settings with a written justification for every number, time-current curves, a voltage-dip study, and a pass/fail verdict against nineteen acceptance criteria from IEC and IEEE standards. CI regenerates and publishes the study on every push.',
-    metrics: [
-      { value: '224', label: 'tests in CI' },
-      { value: '19', label: 'acceptance criteria' },
-      { value: '0', label: 'invented data' },
-    ],
-    stack: ['Python', 'NumPy', 'pandas', 'matplotlib', 'PyYAML', 'pytest', 'GitHub Actions'],
-    links: [
-      { label: 'Live study', href: 'https://motor-protection-coordination-study.vercel.app' },
-      { label: 'GitHub', href: 'https://github.com/Dakshhhhh-ops/motor-protection-coordination-study' },
-    ],
+      'A RAG backend for 10-Ks and annual reports with table-aware chunking, hybrid lexical-semantic search and citation-aware answers that point back to the source page. Includes retrieval evaluation metrics to measure answer quality.',
+    stack: ['Python', 'LangChain', 'Groq', 'FAISS', 'HuggingFace embeddings', 'FastAPI', 'Streamlit'],
+    links: [{ label: 'GitHub', href: 'https://github.com/Dakshhhhh-ops/financial-document-rag' }],
     mock: 'browser',
-    colors: coal,
-    image: { src: motorShot, alt: 'Interactive protection coordination study for MCC-01, listing findings that need action' },
+    terminal: [
+      '> how did operating margin change year on year?',
+      '- chunking 10-K · tables kept intact',
+      '- hybrid search · bm25 + faiss',
+      '+ top passages re-ranked',
+      '+ answer drafted with citations',
+      '- [1] 10-K, Item 7 · MD&A',
+      '- [2] 10-K, Item 8 · income statement',
+    ],
+    colors: orange,
   },
 ]
 
@@ -263,11 +261,11 @@ export const archive: ArchiveItem[] = [
     colors: violet,
   },
   {
-    title: 'Financial Document RAG',
-    kind: 'Citation-aware Q&A over 10-Ks and annual reports',
+    title: 'End-to-end ML pipeline',
+    kind: 'Reproducible training with DVC experiment tracking and S3 data versioning',
     year: '2026',
-    stack: ['LangChain', 'FAISS', 'Groq'],
-    href: 'https://github.com/Dakshhhhh-ops/financial-document-rag',
+    stack: ['DVC', 'AWS S3', 'scikit-learn'],
+    href: 'https://github.com/Dakshhhhh-ops/Mlops-completeML-pipeline',
     colors: sand,
   },
 ]
@@ -294,7 +292,7 @@ export const highlights: Highlight[] = [
   {
     stat: '54',
     title: 'Public repositories',
-    detail: 'On GitHub, from MLOps pipelines and RAG to agent safety, optimisation and power-systems tooling.',
+    detail: 'On GitHub, from MLOps pipelines and RAG to agent safety and verified optimisation.',
     colors: violet,
   },
   {
@@ -318,7 +316,6 @@ export const toolkit = [
   { title: 'Security', description: 'Secure code scanning, agent runtime guardrails, Cognito auth and zero-credential clients.' },
   { title: 'Full-stack', description: 'FastAPI and REST APIs behind React, Next.js, Electron and Tailwind CSS. Three.js when a map needs a third axis.' },
   { title: 'ML & MLOps', description: 'scikit-learn, TensorFlow, NLP. MLflow, DVC, Docker and GitHub Actions CI/CD. Python, C++, TypeScript, SQL.' },
-  { title: 'Power systems', description: 'IEC 60909 short-circuit, protection coordination and motor-starting studies, written as tested Python.' },
 ]
 
 export const roles = [
