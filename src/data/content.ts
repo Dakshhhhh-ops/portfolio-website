@@ -5,6 +5,7 @@
 import drishtiShot from '../assets/drishti.webp'
 import nwisShot from '../assets/nwis.webp'
 import sifTraceShot from '../assets/sif-trace.webp'
+import spamShieldShot from '../assets/spamshield.webp'
 import underpassShot from '../assets/underpass.webp'
 
 export type Colors = { c1: string; c2: string; ink: string }
@@ -213,6 +214,28 @@ export const projects: Project[] = [
     ],
     colors: orange,
   },
+  {
+    title: 'SpamShield',
+    word: 'Spam',
+    kind: 'SMS spam detection, taken all the way to production',
+    context: 'MLOps · end to end',
+    description:
+      'An SMS spam classifier built as a real MLOps project. NLTK preprocessing and TF-IDF feed a scikit-learn model through modular ingestion, transformation and training pipelines; a FastAPI service on Render returns a verdict with confidence scores to a Streamlit front end. A companion five-stage DVC pipeline versions the data and models on S3.',
+    metrics: [
+      { value: '2', label: 'deployed services' },
+      { value: '5', label: 'DVC pipeline stages' },
+      { value: 'S3', label: 'data + model versions' },
+    ],
+    stack: ['Python', 'NLTK', 'scikit-learn', 'FastAPI', 'Streamlit', 'Pydantic', 'DVC', 'MLflow', 'AWS S3', 'Render'],
+    links: [
+      { label: 'Live demo', href: 'https://sms-spam-classifier-qpnp2zesr287tny2mmidfa.streamlit.app/' },
+      { label: 'GitHub', href: 'https://github.com/Dakshhhhh-ops/sms-spam-classifier' },
+      { label: 'DVC pipeline', href: 'https://github.com/Dakshhhhh-ops/Mlops-completeML-pipeline' },
+    ],
+    mock: 'browser',
+    colors: mint,
+    image: { src: spamShieldShot, alt: 'SpamShield web app with a sample spam message ready to analyse' },
+  },
 ]
 
 export type ArchiveItem = {
@@ -259,14 +282,6 @@ export const archive: ArchiveItem[] = [
     stack: ['Python', 'FastAPI', 'React'],
     href: 'https://github.com/Dakshhhhh-ops/incidentpilot',
     colors: violet,
-  },
-  {
-    title: 'End-to-end ML pipeline',
-    kind: 'Reproducible training with DVC experiment tracking and S3 data versioning',
-    year: '2026',
-    stack: ['DVC', 'AWS S3', 'scikit-learn'],
-    href: 'https://github.com/Dakshhhhh-ops/Mlops-completeML-pipeline',
-    colors: sand,
   },
 ]
 

@@ -237,7 +237,7 @@ export function Work() {
         <Eyebrow n="02">Selected work</Eyebrow>
         <SplitWords as="h2" className="display" text="Things I've *built*" />
         <Reveal as="p" className="section-head__note">
-          {pad(projects.length)} featured builds across agentic AI, cloud, security and retrieval. Each one shipped and
+          {pad(projects.length)} featured builds across agentic AI, cloud, security, retrieval and MLOps. Each one shipped and
           open source, and several are live.
         </Reveal>
       </header>
