@@ -2,7 +2,11 @@
  * Everything the site says lives in this file.
  * Edit the values below — no need to touch the components.
  */
+import drishtiShot from '../assets/drishti.webp'
+import motorShot from '../assets/motor.webp'
+import nwisShot from '../assets/nwis.webp'
 import sifTraceShot from '../assets/sif-trace.webp'
+import underpassShot from '../assets/underpass.webp'
 
 export type Colors = { c1: string; c2: string; ink: string }
 
@@ -49,17 +53,17 @@ export const site = {
   /** `*wrapped*` words are set in the italic serif */
   intro: 'Secure, cloud-native software and applied-AI systems that *actually ship.*',
   /** Cycles under the role in the hero */
-  focus: ['Cloud & serverless', 'Security-first', 'Applied AI', 'Hackathon winner'],
-  tags: ['AWS', 'Serverless', 'Security', 'Python', 'TypeScript', 'AI agents'],
-  marquee: ['Cloud-native', 'Security-first', 'AI agents', 'Serverless', 'RAG', 'Hackathon winner'],
+  focus: ['Agentic AI', 'Cloud & serverless', 'Security-first', 'Verified AI', 'Hackathon winner'],
+  tags: ['AI agents', 'Verified AI', 'AWS', 'Serverless', 'Security', 'Python', 'TypeScript'],
+  marquee: ['Agentic AI', 'Verified, not guessed', 'Cloud-native', 'Security-first', 'Human in the loop', 'Hackathon winner'],
   /** Lights up word by word as you scroll. `*wrapped*` words are set in the italic serif. */
   statement:
-    "I'm Daksh, a third-year engineer at NIT Hamirpur building *secure, cloud-native software* and *applied AI.* I work across backend systems and AWS, and I like shipping real products against tight deadlines. That habit has won me *two hackathons* so far.",
+    "I'm Daksh, a third-year engineer at NIT Hamirpur building *secure, cloud-native software* and *AI agents that check their own work.* I work across backend systems and AWS, and I like shipping real products against tight deadlines. That habit has won me *two hackathons* so far.",
   about: {
     title: 'Engineer by training, *builder by habit.*',
     facts: [
       { label: 'Education', text: 'B.Tech in Electrical Engineering, NIT Hamirpur. 2024 – 2028 · CGPA 8.78 / 10.' },
-      { label: 'Focus', text: 'Cloud security, backend systems and applied AI — agents, RAG and NLP.' },
+      { label: 'Focus', text: 'Agentic and verified AI, cloud security and backend systems, with a power-systems streak from Electrical Engineering.' },
       { label: 'Core CS', text: 'Data structures & algorithms, OOP, DBMS, operating systems, computer networks.' },
     ],
   },
@@ -76,8 +80,11 @@ const orange: Colors = { c1: '#ff6a3d', c2: '#3a0f02', ink: '#ffe9df' }
 const lime: Colors = { c1: '#d9ff5a', c2: '#33400a', ink: '#10140a' }
 const sand: Colors = { c1: '#e9e3d6', c2: '#8d8674', ink: '#141310' }
 const coal: Colors = { c1: '#24221f', c2: '#0f0e0d', ink: '#edeae3' }
+const violet: Colors = { c1: '#8b5cff', c2: '#1a0b3d', ink: '#efe8ff' }
+const mint: Colors = { c1: '#5fe3b3', c2: '#0b3b2c', ink: '#06140f' }
+const yellow: Colors = { c1: '#ffd60a', c2: '#4a3a00', ink: '#141100' }
 
-/** The first project is shown large, as the featured one. */
+/** Shown as stacking cards, in this order. */
 export const projects: Project[] = [
   {
     title: 'Arcade',
@@ -106,6 +113,51 @@ export const projects: Project[] = [
     colors: blue,
   },
   {
+    title: 'OptiAgent',
+    kind: 'Natural language to verified optimisation',
+    description:
+      'Turns a plain-English planning problem and your spreadsheet into a linear program, solves it, and proves the answer. The LLM only fills typed structures: every number is grounded in your text or data, you approve the exact formulation, and the plan is verified twice, including a duality certificate, before it is shown. Then it explains shadow prices, ranges and what-ifs.',
+    metrics: [
+      { value: '100%', label: 'correct optima · qwen3:8b' },
+      { value: '4%', label: 'same LLM, unverified' },
+      { value: '204/204', label: 'injected errors caught' },
+    ],
+    stack: ['Python', 'FastAPI', 'OR-Tools', 'HiGHS', 'Ollama', 'SQLite', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Docker'],
+    links: [{ label: 'GitHub', href: 'https://github.com/Dakshhhhh-ops/Optiagent' }],
+    mock: 'browser',
+    terminal: [
+      '> ship from 3 plants to 4 stores at least cost',
+      '- extracted: transportation problem',
+      '+ grounding: every number found in your text',
+      '- you approved the formulation',
+      '+ solved · OR-Tools GLOP · optimal',
+      '+ verified against data · duality certificate',
+      '- shadow price: plant B capacity',
+    ],
+    colors: violet,
+  },
+  {
+    title: 'Underpass Sentinel',
+    word: 'Sentinel',
+    kind: 'Monsoon flood alerts for Delhi dispatchers',
+    context: 'Environmental Hacks · WeMakeDevs × AWS',
+    description:
+      "Watches 26 flood-prone underpasses and low roads in Delhi, compares the rain forecast and the rain already falling against each spot's own limit, and has a Strands agent draft the alert. A human dispatcher approves before anything reaches the bilingual driver page. Backtested against two monsoons and deployed serverless on AWS.",
+    metrics: [
+      { value: '26', label: 'low points watched' },
+      { value: '5,616', label: 'spot-days backtested' },
+      { value: '2', label: 'languages · Hindi + English' },
+    ],
+    stack: ['Python', 'FastAPI', 'Strands Agents', 'Bedrock', 'Lambda', 'API Gateway', 'DynamoDB', 'SNS', 'AWS SAM', 'Three.js'],
+    links: [
+      { label: 'Live demo', href: 'https://ssainw9s4c.execute-api.us-east-1.amazonaws.com' },
+      { label: 'GitHub', href: 'https://github.com/Dakshhhhh-ops/Environmental-hacks' },
+    ],
+    mock: 'browser',
+    colors: mint,
+    image: { src: underpassShot, alt: 'Underpass Sentinel landing page: "Know which underpass floods. Before the bus leaves."' },
+  },
+  {
     title: 'SIF-Trace',
     kind: 'AI / NLP engine for SIF precursor detection',
     context: 'Smart India Hackathon 2026 · Oil India Ltd.',
@@ -126,24 +178,97 @@ export const projects: Project[] = [
     image: { src: sifTraceShot, alt: 'SIF-Trace safety intelligence dashboard showing report counts, risk overview and site risk ranking' },
   },
   {
-    title: 'Financial Document RAG',
-    word: 'RAG',
-    kind: 'Retrieval-augmented Q&A for financial reports',
+    title: 'DrishtiAI',
+    kind: 'Offline sight assistant for blind and low-vision people',
+    context: 'Hacktoberfest Hack Day · built solo',
     description:
-      'A RAG backend for 10-Ks and annual reports with table-aware chunking, hybrid lexical-semantic search and citation-aware answers that point back to the source page. Includes retrieval evaluation metrics to measure answer quality.',
-    stack: ['Python', 'LangChain', 'Groq', 'FAISS', 'HuggingFace embeddings', 'FastAPI', 'Streamlit'],
-    links: [{ label: 'GitHub', href: 'https://github.com/Dakshhhhh-ops/financial-document-rag' }],
-    mock: 'browser',
-    terminal: [
-      '> how did operating margin change year on year?',
-      '- chunking 10-K · tables kept intact',
-      '- hybrid search · bm25 + faiss',
-      '+ top passages re-ranked',
-      '+ answer drafted with citations',
-      '- [1] 10-K, Item 7 · MD&A',
-      '- [2] 10-K, Item 8 · income statement',
+      'Point a webcam and it says what is in front of you, hazards first, in English or Hindi. A local vision-language model returns validated JSON, a fast object detector adds people and vehicles it missed, and everything, including speech in and out, runs on your own machine. No image, text or audio ever leaves the computer.',
+    metrics: [
+      { value: '100%', label: 'on-device · no cloud' },
+      { value: '1.5–3s', label: 'per scene · 6 GB GPU' },
+      { value: '2', label: 'languages · Hindi + English' },
     ],
+    stack: ['Python', 'FastAPI', 'Qwen3-VL', 'Ollama', 'YOLOX', 'ONNX Runtime', 'Whisper', 'Piper TTS', 'Pydantic'],
+    links: [{ label: 'GitHub', href: 'https://github.com/Dakshhhhh-ops/hacktober' }],
+    mock: 'browser',
+    colors: yellow,
+    image: { src: drishtiShot, alt: 'DrishtiAI describing a street scene with an open manhole and a traffic cone' },
+  },
+  {
+    title: 'Motor Protection Study',
+    word: 'IEC',
+    kind: 'Protection coordination engine for a 415 V plant bus',
+    context: 'Electrical engineering',
+    description:
+      'Takes a plant described in YAML and produces a full engineering study: short-circuit levels, protection settings with a written justification for every number, time-current curves, a voltage-dip study, and a pass/fail verdict against nineteen acceptance criteria from IEC and IEEE standards. CI regenerates and publishes the study on every push.',
+    metrics: [
+      { value: '224', label: 'tests in CI' },
+      { value: '19', label: 'acceptance criteria' },
+      { value: '0', label: 'invented data' },
+    ],
+    stack: ['Python', 'NumPy', 'pandas', 'matplotlib', 'PyYAML', 'pytest', 'GitHub Actions'],
+    links: [
+      { label: 'Live study', href: 'https://motor-protection-coordination-study.vercel.app' },
+      { label: 'GitHub', href: 'https://github.com/Dakshhhhh-ops/motor-protection-coordination-study' },
+    ],
+    mock: 'browser',
+    colors: coal,
+    image: { src: motorShot, alt: 'Interactive protection coordination study for MCC-01, listing findings that need action' },
+  },
+]
+
+export type ArchiveItem = {
+  title: string
+  kind: string
+  year: string
+  stack: string[]
+  href: string
+  colors: Colors
+  image?: { src: string; alt: string }
+}
+
+/** Shorter list under the featured work. Hovering a row shows its preview. */
+export const archive: ArchiveItem[] = [
+  {
+    title: 'NWIS',
+    kind: 'Offset-well risk radar for drilling engineers · SIH 2026',
+    year: '2026',
+    stack: ['FastAPI', 'scikit-learn', 'OCR / NLP'],
+    href: 'https://github.com/Dakshhhhh-ops/nwis',
+    colors: blue,
+    image: { src: nwisShot, alt: 'NWIS dashboard with well risk index, field map and depth-ahead risk radar' },
+  },
+  {
+    title: 'ResumeAgent',
+    kind: 'Finds jobs you are eligible for, then fills the form',
+    year: '2026',
+    stack: ['Groq', 'Playwright', 'React'],
+    href: 'https://github.com/Dakshhhhh-ops/resume-browser-agent',
     colors: orange,
+  },
+  {
+    title: 'AgentGuard',
+    kind: 'Runtime security control plane for AI agents',
+    year: '2026',
+    stack: ['FastAPI', 'React', 'TypeScript'],
+    href: 'https://github.com/Dakshhhhh-ops/agentguard',
+    colors: lime,
+  },
+  {
+    title: 'IncidentPilot',
+    kind: 'Autonomous SRE agent: reproduce, prove, patch, verify',
+    year: '2026',
+    stack: ['Python', 'FastAPI', 'React'],
+    href: 'https://github.com/Dakshhhhh-ops/incidentpilot',
+    colors: violet,
+  },
+  {
+    title: 'Financial Document RAG',
+    kind: 'Citation-aware Q&A over 10-Ks and annual reports',
+    year: '2026',
+    stack: ['LangChain', 'FAISS', 'Groq'],
+    href: 'https://github.com/Dakshhhhh-ops/financial-document-rag',
+    colors: sand,
   },
 ]
 
@@ -167,6 +292,12 @@ export const highlights: Highlight[] = [
     colors: lime,
   },
   {
+    stat: '54',
+    title: 'Public repositories',
+    detail: 'On GitHub, from MLOps pipelines and RAG to agent safety, optimisation and power-systems tooling.',
+    colors: violet,
+  },
+  {
     stat: '200+',
     title: 'LeetCode',
     detail: 'Problems solved across data structures, algorithms and dynamic programming.',
@@ -181,11 +312,13 @@ export const highlights: Highlight[] = [
 ]
 
 export const toolkit = [
-  { title: 'Cloud', description: 'AWS Lambda, S3, CloudFront, Cognito, DynamoDB, CDK and Bedrock. Serverless by default.' },
-  { title: 'Security', description: 'Secure code scanning, Cognito auth, zero-credential clients and human-in-the-loop approval flows.' },
-  { title: 'Full-stack', description: 'FastAPI, Flask and REST APIs behind React, Next.js, Electron and Tailwind CSS.' },
-  { title: 'Applied AI', description: 'LangChain, RAG, AI agents, MCP, FAISS and vector DBs. scikit-learn, TensorFlow and NLP.' },
-  { title: 'DevOps', description: 'Docker, GitHub Actions CI/CD, Git, Jest and MLflow. Python, C++, TypeScript, JavaScript, SQL.' },
+  { title: 'Applied AI', description: 'Agents with LangGraph, Strands and MCP. RAG with LangChain and FAISS. Local and hosted LLMs via Ollama, Groq and Bedrock, including vision models.' },
+  { title: 'Verified AI', description: 'LLMs fill typed structures, code does the maths. Grounding checks, OR-Tools solvers, evaluation suites and human approval gates.' },
+  { title: 'Cloud', description: 'AWS Lambda, API Gateway, DynamoDB, SNS, S3, CloudFront, Cognito, CDK and SAM. Serverless by default.' },
+  { title: 'Security', description: 'Secure code scanning, agent runtime guardrails, Cognito auth and zero-credential clients.' },
+  { title: 'Full-stack', description: 'FastAPI and REST APIs behind React, Next.js, Electron and Tailwind CSS. Three.js when a map needs a third axis.' },
+  { title: 'ML & MLOps', description: 'scikit-learn, TensorFlow, NLP. MLflow, DVC, Docker and GitHub Actions CI/CD. Python, C++, TypeScript, SQL.' },
+  { title: 'Power systems', description: 'IEC 60909 short-circuit, protection coordination and motor-starting studies, written as tested Python.' },
 ]
 
 export const roles = [

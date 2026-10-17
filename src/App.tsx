@@ -5,7 +5,7 @@ import { ReadyContext } from './context/ReadyContext'
 import { useLenis } from './hooks'
 import { Header } from './components/Header'
 import { Preloader } from './components/Preloader'
-import { About, Footer, Hero, Highlights, Statement, Toolkit, Work } from './components/sections'
+import { About, Archive, Footer, Hero, Highlights, Statement, Toolkit, Work } from './components/sections'
 import { Cursor } from './components/ui'
 
 const SEEN_KEY = 'preloaded'
@@ -46,6 +46,7 @@ function Page() {
         <div className="content">
           <Statement />
           <Work />
+          <Archive />
           <Highlights />
           <About />
           <Toolkit />

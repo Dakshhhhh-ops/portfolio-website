@@ -1,8 +1,16 @@
-import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from 'react'
-import { motion, useMotionValueEvent, useScroll, useTransform, type MotionValue } from 'motion/react'
+import { Fragment, useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
+import {
+  motion,
+  useMotionValueEvent,
+  useScroll,
+  useSpring,
+  useTransform,
+  useVelocity,
+  type MotionValue,
+} from 'motion/react'
 import { useMotionPref } from '../context/MotionContext'
 import { useReady } from '../context/ReadyContext'
-import { highlights, nav, projects, roles, site, toolkit, type Project } from '../data/content'
+import { archive, highlights, nav, projects, roles, site, toolkit, type Project } from '../data/content'
 import { useClock, useFitText, useMediaQuery } from '../hooks'
 import {
   Counter,
@@ -229,8 +237,8 @@ export function Work() {
         <Eyebrow n="02">Selected work</Eyebrow>
         <SplitWords as="h2" className="display" text="Things I've *built*" />
         <Reveal as="p" className="section-head__note">
-          {pad(projects.length)} projects across cloud security, applied AI and retrieval. Each one shipped, tested and
-          open source.
+          {pad(projects.length)} featured builds across agentic AI, cloud, security and power systems. Each one shipped and
+          open source, and several are live.
         </Reveal>
       </header>
 
@@ -329,6 +337,79 @@ function ProjectCard({ project, index, progress }: { project: Project; index: nu
   )
 }
 
+/* ---------- More work (index list with a cursor-following preview) ---------- */
+
+export function Archive() {
+  const { motionOn } = useMotionPref()
+  const [active, setActive] = useState<number | null>(null)
+  const x = useSpring(0, { stiffness: 160, damping: 22, mass: 0.6 })
+  const y = useSpring(0, { stiffness: 160, damping: 22, mass: 0.6 })
+  // The preview leans into the direction it is being dragged
+  const rotate = useTransform(useVelocity(x), [-2000, 2000], motionOn ? [-14, 14] : [0, 0])
+  const shown = active !== null
+
+  const onMove = (e: ReactPointerEvent<HTMLUListElement>) => {
+    if (e.pointerType !== 'mouse') return
+    x.set(e.clientX)
+    y.set(e.clientY)
+  }
+
+  return (
+    <section className="panel archive" aria-labelledby="archive-title">
+      <header className="archive__head">
+        <Eyebrow n="03">More work</Eyebrow>
+        <h2 className="label muted" id="archive-title">
+          Smaller builds and experiments · {pad(archive.length)}
+        </h2>
+      </header>
+
+      <ul className="archive__list" onPointerMove={onMove} onPointerLeave={() => setActive(null)}>
+        {archive.map((item, i) => (
+          <Reveal as="li" key={item.title} delay={i * 0.05}>
+            <a
+              className={`archive__row${active === i ? ' is-active' : ''}`}
+              href={item.href}
+              {...external}
+              onPointerEnter={() => setActive(i)}
+              onFocus={() => setActive(i)}
+              onBlur={() => setActive(null)}
+            >
+              <span className="label archive__n">({pad(i + 1)})</span>
+              <h3 className="archive__title">{item.title}</h3>
+              <p className="archive__kind">{item.kind}</p>
+              <span className="label archive__stack">{item.stack.join(' · ')}</span>
+              <span className="archive__arrow" aria-hidden="true">
+                ↗
+              </span>
+            </a>
+          </Reveal>
+        ))}
+      </ul>
+
+      <motion.div
+        className="archive__preview"
+        style={{ x, y, rotate }}
+        initial={false}
+        animate={{ scale: shown ? 1 : 0.3, opacity: shown ? 1 : 0 }}
+        transition={{ duration: 0.45, ease: EASE_OUT }}
+        aria-hidden="true"
+      >
+        <div className="archive__reel" style={{ transform: `translateY(${-(active ?? 0) * 100}%)` }}>
+          {archive.map((item) => (
+            <div className="archive__slide" key={item.title}>
+              {item.image ? (
+                <img src={item.image.src} alt="" loading="lazy" />
+              ) : (
+                <Visual colors={item.colors} word={item.title} />
+              )}
+            </div>
+          ))}
+        </div>
+      </motion.div>
+    </section>
+  )
+}
+
 /* ---------- Highlights (pinned horizontal scroll) ---------- */
 
 export function Highlights() {
@@ -367,7 +448,7 @@ export function Highlights() {
       <div className="highlights__sticky">
         <motion.div className="highlights__track" ref={trackRef} style={{ x }}>
           <div className="highlights__intro">
-            <Eyebrow n="03">Highlights</Eyebrow>
+            <Eyebrow n="04">Highlights</Eyebrow>
             <h2 className="display" id="highlights-title">
               Proof, <em>not promises.</em>
             </h2>
@@ -412,7 +493,7 @@ export function About() {
   return (
     <section className="panel about" id="about">
       <header className="section-head">
-        <Eyebrow n="04">Background</Eyebrow>
+        <Eyebrow n="05">Background</Eyebrow>
         <SplitWords as="h2" className="display display--md" text={site.about.title} />
       </header>
 
@@ -456,7 +537,7 @@ export function Toolkit() {
   return (
     <section className="panel toolkit" id="toolkit">
       <header className="section-head">
-        <Eyebrow n="05">Toolkit</Eyebrow>
+        <Eyebrow n="06">Toolkit</Eyebrow>
         <SplitWords as="h2" className="display" text="What I *work with*" />
       </header>
       <ol className="tk">
@@ -496,7 +577,7 @@ export function Footer() {
     <div className="footer-wrap" id="contact">
       <footer className="footer">
         <div className="footer__top">
-          <Eyebrow n="06">Contact</Eyebrow>
+          <Eyebrow n="07">Contact</Eyebrow>
           <p className="footer__note">{site.contactNote}</p>
         </div>
 
